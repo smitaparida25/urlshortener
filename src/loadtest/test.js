@@ -7,7 +7,7 @@ export const options = {
 };
 
 export default function () {
-  http.get('http://localhost:8080/n');
+  http.get('http://localhost:8080/o');
   sleep(1);
 }
 
