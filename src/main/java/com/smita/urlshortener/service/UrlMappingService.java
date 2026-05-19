@@ -4,8 +4,10 @@ import com.smita.urlshortener.entity.ClickEvent;
 import com.smita.urlshortener.entity.UrlMapping;
 import com.smita.urlshortener.repository.ClickEventRepository;
 import com.smita.urlshortener.repository.UrlMappingRepository; // going to use this to store the url
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,9 +16,12 @@ import java.util.Map;
 public class UrlMappingService {
     private final UrlMappingRepository urlMappingRepository; // soring creates the object of repository, repository reference variable for this service class
     private final ClickEventRepository clickEventRepository;
-    public UrlMappingService(UrlMappingRepository urlMappingRepository, ClickEventRepository clickEventRepository) { // same name as class, runs whenever the object of this class is created. the parameter will be passed when creating the object of service class.
+    private final RedisTemplate<String,String> redisTemplate;
+    public UrlMappingService(UrlMappingRepository urlMappingRepository, ClickEventRepository clickEventRepository, RedisTemplate<String,String> redisTemplate) { // same name as class, runs whenever the object of this class is created. the parameter will be passed when creating the object of service class.
         this.urlMappingRepository = urlMappingRepository; // assigning the variable of class, the value that is passed.
         this.clickEventRepository = clickEventRepository;
+        this.redisTemplate = redisTemplate;
+
     }
 
 
@@ -50,8 +55,15 @@ public class UrlMappingService {
     }
 
     public String getOriginalUrl(String shortCode, String ip) { //every time someone clicks the link they are calling the get original method
-        UrlMapping current = urlMappingRepository.findByShortCode(shortCode);
+        String redisKey = "url:" + shortCode;
+        String cachedUrl = redisTemplate.opsForValue().get(redisKey);
 
+        if(cachedUrl!= null){
+            return cachedUrl;
+        }
+
+
+        UrlMapping current = urlMappingRepository.findByShortCode(shortCode);
         LocalDateTime expiresAt = current.getExpiryDate();
         if(LocalDateTime.now().isAfter(expiresAt)){
             throw new RuntimeException("Link expired");
@@ -68,6 +80,11 @@ public class UrlMappingService {
         clickEventRepository.save(event);
         current.setClicks(current.getClicks()+1);
         urlMappingRepository.save(current); // saving is important to update anything
+        redisTemplate.opsForValue().set(
+                redisKey,
+                current.getLongUrl(),
+                Duration.ofDays(7)
+        );
         return current.getLongUrl();
     }
 
