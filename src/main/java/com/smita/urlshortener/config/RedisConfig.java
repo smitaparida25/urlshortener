@@ -1,4 +1,5 @@
-package com.smita.urlshortener.config;
+
+/*package com.smita.urlshortener.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,3 +23,4 @@ public class RedisConfig {
         return template;
     }
 }
+ */

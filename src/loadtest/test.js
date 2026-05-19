@@ -7,7 +7,9 @@ export const options = {
 };
 
 export default function () {
-  http.get('http://localhost:8080/o');
+  http.get('http://localhost:8080/o', {
+    redirects: 0
+  })
   sleep(1);
 }
 
