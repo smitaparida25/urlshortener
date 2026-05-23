@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@CrossOrigin(origins = "https://urlshortener-frontend-8dx8-fehd75el7-smita-paridas-projects.vercel.app")
+@CrossOrigin(origins = "https://urlshortener-frontend-8dx8-git-main-smita-paridas-projects.vercel.app/")
 public class UrlMappingController {
     private final UrlMappingService urlMappingService; // injecting service
     public UrlMappingController(UrlMappingService urlMappingService){
