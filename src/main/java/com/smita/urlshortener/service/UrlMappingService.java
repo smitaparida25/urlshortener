@@ -4,9 +4,8 @@ import com.smita.urlshortener.entity.ClickEvent;
 import com.smita.urlshortener.entity.UrlMapping;
 import com.smita.urlshortener.repository.ClickEventRepository;
 import com.smita.urlshortener.repository.UrlMappingRepository; // going to use this to store the url
-// import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-
+import org.springframework.data.redis.core.RedisTemplate;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -16,11 +15,11 @@ import java.util.Map;
 public class UrlMappingService {
     private final UrlMappingRepository urlMappingRepository; // soring creates the object of repository, repository reference variable for this service class
     private final ClickEventRepository clickEventRepository;
-    // private final RedisTemplate<String,String> redisTemplate;
-    public UrlMappingService(UrlMappingRepository urlMappingRepository, ClickEventRepository clickEventRepository/*, RedisTemplate<String,String> redisTemplate*/) {
+    private final RedisTemplate<String,String> redisTemplate;
+    public UrlMappingService(UrlMappingRepository urlMappingRepository, ClickEventRepository clickEventRepository, RedisTemplate<String,String> redisTemplate) {
         this.urlMappingRepository = urlMappingRepository;
         this.clickEventRepository = clickEventRepository;
-        // this.redisTemplate = redisTemplate;
+        this.redisTemplate = redisTemplate;
     }
 
 
@@ -54,17 +53,17 @@ public class UrlMappingService {
     }
 
     public String getOriginalUrl(String shortCode, String ip) {
-        // String redisKey = "url:" + shortCode;
-        // String cachedUrl = redisTemplate.opsForValue().get(redisKey);
+        String redisKey = "url:" + shortCode;
+        String cachedUrl = redisTemplate.opsForValue().get(redisKey);
         UrlMapping current = urlMappingRepository.findByShortCode(shortCode);
-        // if(cachedUrl!= null){
-        //     return cachedUrl;
-        // }
-        // redisTemplate.opsForValue().set(
-        //         redisKey,
-        //         current.getLongUrl(),
-        //         Duration.ofDays(7)
-        // );
+        if(cachedUrl!= null){
+            return cachedUrl;
+        }
+        redisTemplate.opsForValue().set(
+                 redisKey,
+                 current.getLongUrl(),
+                 Duration.ofDays(7)
+         );
 
         LocalDateTime expiresAt = current.getExpiryDate();
         if(LocalDateTime.now().isAfter(expiresAt)){
