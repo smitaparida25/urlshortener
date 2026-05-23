@@ -3,6 +3,7 @@ package com.smita.urlshortener.controller;
 import com.smita.urlshortener.dto.ShortenRequest;
 import com.smita.urlshortener.service.UrlMappingService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "https://urlshortener-frontend-8dx8.vercel.app")
 public class UrlMappingController {
     private final UrlMappingService urlMappingService; // injecting service
     public UrlMappingController(UrlMappingService urlMappingService){
@@ -19,8 +20,9 @@ public class UrlMappingController {
     }
 
     @PostMapping("/shorten") // string needs quotes
-    public String shortenUrl(@RequestBody ShortenRequest shortenRequest){ // take string parameter from url
-        return "http://localhost:8080/" + urlMappingService.shortenUrl(shortenRequest);
+    public String shortenUrl(@RequestBody ShortenRequest shortenRequest, HttpServletRequest request){ // take string parameter from url
+        String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), "");
+        return baseUrl + "/" + urlMappingService.shortenUrl(shortenRequest);
     }
 
     @GetMapping("/{shortCode}")

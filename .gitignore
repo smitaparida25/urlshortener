@@ -37,4 +37,3 @@ target/
 *.iml
 
 .env
-application.properties
