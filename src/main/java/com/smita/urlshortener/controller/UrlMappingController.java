@@ -25,6 +25,7 @@ public class UrlMappingController {
         return baseUrl + "/" + urlMappingService.shortenUrl(shortenRequest);
     }
 
+
     @GetMapping("/{shortCode}")
     public ResponseEntity<Void> redirect(@PathVariable String shortCode, HttpServletRequest request) {
 
